@@ -1,0 +1,19 @@
+body            { font-family: sans-serif; background-color: #804000; background-image: url('https://bit.ly/2JYWSQA');width:80%;}
+ h1, h2, h3, h4       { color:  #5c8a8a; }
+h1, h2          { font-family: 'sans-serif', serif; margin: 0; }
+h1              { border-bottom: 2px solid #c68c53; }
+h2              { font-size: 1.5em; }
+
+p               { color: #b3b3b3;}
+
+a {text-decoration: none; color:#999999; font-size: .75em;}
+
+.pane {position:absolute;  border: 2px solid; width:100%;
+    border-radius: 25px; padding: 5px; margin: 5px; border-color: #ff9933; background-color: #1a1a1a; }
+.header         {left:50%; text-align: center;}
+.name {width:50%;display: inline-block; float: left;}
+
+.price {text-align: right; width:50%; float: right; }
+
+
+.flash          { background: #994d00; }
