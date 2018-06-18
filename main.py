@@ -36,7 +36,7 @@ session = DBSession()
 
 # Helper Functions
 def createUser(login_session):
-    session=DBSession()
+    session = DBSession()
     newUser = User(name=login_session['username'],
                    email=login_session['email'],
                    picture=login_session['picture'])
@@ -48,14 +48,14 @@ def createUser(login_session):
 
 
 def getUserInfo(user_id):
-    session=DBSession()
+    session = DBSession()
     user = session.query(User).filter_by(id=user_id).first()
     session.close()
     return user
 
 
 def getUserID(email):
-    session=DBSession()
+    session = DBSession()
     try:
         user = session.query(User).filter_by(email=email).first()
         session.close()
@@ -65,7 +65,8 @@ def getUserID(email):
 
 
 def login_required(f):
-    session=DBSession()
+    session = DBSession()
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_name' not in login_session:
@@ -74,10 +75,11 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
 @app.route('/')
 @app.route('/login')
 def showlogin():
-    session=DBSession()
+    session = DBSession()
     state = ''.join(random.choice(
         string.ascii_uppercase + string.digits)for x in xrange(32))
     login_session['state'] = state
@@ -88,7 +90,7 @@ def showlogin():
 # DISCONNECT - Revoke a current user's token and reset their login_session.
 @app.route('/gdisconnect')
 def gdisconnect():
-    session=DBSession()
+    session = DBSession()
     # only disconnect a connected User
     access_token = login_session.get('access_token')
     print 'In gdisconnect access token is %s', access_token
@@ -119,7 +121,7 @@ def gdisconnect():
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
-    session=DBSession()
+    session = DBSession()
     # validate state token
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -220,7 +222,7 @@ def gconnect():
 
 @app.route('/logout')
 def logout():
-    session=DBSession()
+    session = DBSession()
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
             gdisconnect()
@@ -243,7 +245,7 @@ def logout():
 
 @app.route('/candyshop/')
 def showCandyshops():
-    session=DBSession()
+    session = DBSession()
     candyshops = session.query(Candyshop).all()
     # return "This page will show all my candyshops"
     session.close()
@@ -253,7 +255,7 @@ def showCandyshops():
 # Create a new candyshop
 @app.route('/candyshop/new/', methods=['GET', 'POST'])
 def newCandyshop():
-    session=DBSession()
+    session = DBSession()
     if 'username' not in login_session:
         session.close()
         return redirect('/login')
@@ -272,7 +274,7 @@ def newCandyshop():
 
 @app.route('/candyshop/<int:candyshop_id>/delete/', methods=['GET', 'POST'])
 def deleteCandyshop(candyshop_id):
-    session=DBSession()
+    session = DBSession()
     candyshopToDelete = session.query(
         Candyshop).filter_by(id=candyshop_id).one()
     if 'username' not in login_session:
@@ -300,14 +302,13 @@ def deleteCandyshop(candyshop_id):
 
 @app.route('/candyshop/<int:candyshop_id>/edit/', methods=['GET', 'POST'])
 def editCandyshop(candyshop_id):
-    session=DBSession()
+    session = DBSession()
     editedCandyshop = session.query(
         Candyshop).filter_by(id=candyshop_id).one()
     if 'username' not in login_session:
         session.close()
         return redirect('/login')
     if editedCandyshop.user_id != login_session['user_id']:
-       
             return "<script>function myFunction() {alert('You \
             are not authorized to delete this Candyshop.\
             Please create your own entry in order \
@@ -328,7 +329,7 @@ def editCandyshop(candyshop_id):
 @app.route('/candyshop/<int:candyshop_id>/')
 @app.route('/candyshop/<int:candyshop_id>/menu/')
 def showMenu(candyshop_id):
-    session=DBSession()
+    session = DBSession()
     candyshop = session.query(Candyshop).filter_by(id=candyshop_id).one()
     items = session.query(Candy).filter_by(
         candyshop_id=candyshop_id).all()
@@ -342,7 +343,7 @@ def showMenu(candyshop_id):
 @app.route('/candyshop/<int:candyshop_id>/menu/new/',
            methods=['GET', 'POST'])
 def newCandy(candyshop_id):
-    session=DBSession()
+    session = DBSession()
     if 'username' not in login_session:
         session.close()
         return redirect('/login')
@@ -355,11 +356,11 @@ def newCandy(candyshop_id):
             to edit/delete.');}</script><body onload='myFunction()'>"
     if request.method == 'POST':
         newItem = Candy(name=request.form['name'],
-                           description=request.form['description'],
-                           price=request.form['price'],
-                           course=request.form['course'],
-                           candyshop_id=candyshop_id,
-                           user_id=candyshop.user_id)
+                        description=request.form['description'],
+                        price=request.form['price'],
+                        course=request.form['course'],
+                        candyshop_id=candyshop_id,
+                        user_id=candyshop.user_id)
         session.add(newItem)
         session.commit()
         flash('New Menu %s Item Successfully Created' % (newItem.name))
@@ -375,15 +376,14 @@ def newCandy(candyshop_id):
 @app.route('/candyshop/<int:candyshop_id>/menu/<int:menu_id>/delete',
            methods=['GET', 'POST'])
 def deleteCandy(candyshop_id, menu_id):
-    session=DBSession()
+    session = DBSession()
     if 'username' not in login_session:
         session.close()
         return redirect('/login')
     candyshop = session.query(Candyshop).filter_by(id=candyshop_id).one()
     itemToDelete = session.query(Candy).filter_by(id=menu_id).one()
     if login_session['user_id'] != candyshop.user_id:
-       
-            return "<script>function myFunction() {alert('You \
+        return "<script>function myFunction() {alert('You \
             are not authorized to delete this Candyshop.\
             Please create your own entry in order \
             to edit/delete.');}</script><body onload='myFunction()'>"
@@ -402,14 +402,13 @@ def deleteCandy(candyshop_id, menu_id):
 @app.route('/candyshop/<int:candyshop_id>/menu/<int:menu_id>/edit',
            methods=['GET', 'POST'])
 def editCandy(candyshop_id, menu_id):
-    session=DBSession()
+    session = DBSession()
     if 'username' not in login_session:
         session.close()
         return redirect('/login')
     editedItem = session.query(Candy).filter_by(id=menu_id).one()
     candyshop = session.query(Candyshop).filter_by(id=candyshop_id).one()
     if login_session['user_id'] != candyshop.user_id:
-        
             return "<script>function myFunction() {alert('You \
             are not authorized to delete this Candyshop.\
             Please create your own entry in order \
@@ -437,7 +436,7 @@ def editCandy(candyshop_id, menu_id):
 
 @app.route('/candyshop/<int:candyshop_id>/menu/JSON')
 def candyshopMenuJSON(candyshop_id):
-    session=DBSession()
+    session = DBSession()
     candyshop = session.query(Candyshop).filter_by(id=candyshop_id).one()
     items = session.query(Candy).filter_by(
         candyshop_id=candyshop_id).all()
@@ -447,7 +446,7 @@ def candyshopMenuJSON(candyshop_id):
 
 @app.route('/candyshop/<int:candyshop_id>/menu/<int:menu_id>/JSON')
 def menuItemJSON(candyshop_id, menu_id):
-    session=DBSession()
+    session = DBSession()
     Menu_Item = session.query(Candy).filter_by(id=menu_id).one()
     session.close()
     return jsonify(Menu_Item=Menu_Item.serialize)
@@ -455,7 +454,7 @@ def menuItemJSON(candyshop_id, menu_id):
 
 @app.route('/candyshop/JSON')
 def candyshopsJSON():
-    session=DBSession()
+    session = DBSession()
     candyshops = session.query(Candyshop).all()
     session.close()
     return jsonify(candyshops=[r.serialize for r in candyshops])
