@@ -256,15 +256,15 @@ def showCandyshops():
 @app.route('/candyshop/new/', methods=['GET', 'POST'])
 def newCandyshop():
     session = DBSession()
-    if 'username' not in login_session:
-        session.close()
+    if 'username' not in login_session:  
         return redirect('/login')
     if request.method == 'POST':
         newCandyshop = Candyshop(
-            name=request.form['name'], user_id=login_session['user_id'])
+            name=request.form['name'])
         session.add(newCandyshop)
         flash('New Candyshop %s Successfully Created' % newCandyshop.name)
         session.commit()
+        session.close()
         return redirect(url_for('showCandyshops'))
     else:
         return render_template('newCandyshop.html')
@@ -279,11 +279,6 @@ def deleteCandyshop(candyshop_id):
         Candyshop).filter_by(id=candyshop_id).one()
     if 'username' not in login_session:
         return redirect('/login')
-    if candyshopToDelete.user_id != login_session['user_id']:
-            return "<script>function myFunction() {alert('You \
-            are not authorized to delete this Candyshop.\
-            Please create your own entry in order \
-            to edit/delete.');}</script><body onload='myFunction()'>"
     if request.method == 'POST':
         session.delete(candyshopToDelete)
         flash('%s Successfully Deleted' % candyshopToDelete.name)
@@ -306,11 +301,6 @@ def editCandyshop(candyshop_id):
         return redirect('/login')
     editedCandyshop = session.query(
         Candyshop).filter_by(id=candyshop_id).one()
-    if editedCandyshop.user_id != login_session['user_id']:
-            return "<script>function myFunction() {alert('You \
-            are not authorized to delete this Candyshop.\
-            Please create your own entry in order \
-            to edit/delete.');}</script><body onload='myFunction()'>"
     if request.method == 'POST':
             editedCandyshop.name = request.form['name']
             session.add(editedCandyshop)
@@ -348,11 +338,6 @@ def newCandy(candyshop_id):
         session.close()
         return redirect('/login')
     candyshop = session.query(Candyshop).filter_by(id=candyshop_id).one()
-    if login_session['user_id'] != candyshop.user_id:
-            return "<script>function myFunction() {alert('You \
-            are not authorized to delete this Candyshop.\
-            Please create your own entry in order \
-            to edit/delete.');}</script><body onload='myFunction()'>"
     if request.method == 'POST':
         newItem = Candy(name=request.form['name'],
                         description=request.form['description'],
@@ -381,11 +366,6 @@ def deleteCandy(candyshop_id, menu_id):
         return redirect('/login')
     candyshop = session.query(Candyshop).filter_by(id=candyshop_id).one()
     itemToDelete = session.query(Candy).filter_by(id=menu_id).one()
-    if login_session['user_id'] != candyshop.user_id:
-        return "<script>function myFunction() {alert('You \
-            are not authorized to delete this Candyshop.\
-            Please create your own entry in order \
-            to edit/delete.');}</script><body onload='myFunction()'>"
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
@@ -407,11 +387,6 @@ def editCandy(candyshop_id, menu_id):
         return redirect('/login')
     editedItem = session.query(Candy).filter_by(id=menu_id).one()
     candyshop = session.query(Candyshop).filter_by(id=candyshop_id).one()
-    if login_session['user_id'] != candyshop.user_id:
-            return "<script>function myFunction() {alert('You \
-            are not authorized to delete this Candyshop.\
-            Please create your own entry in order \
-            to edit/delete.');}</script><body onload='myFunction()'>"
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
